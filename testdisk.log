@@ -1,0 +1,73 @@
+
+
+Mon Feb 16 15:40:45 2015
+Command line: TestDisk
+
+TestDisk 6.14, Data Recovery Utility, July 2013
+Christophe GRENIER <grenier@cgsecurity.org>
+http://www.cgsecurity.org
+OS: Linux, kernel 3.18.6-1-ARCH (#1 SMP PREEMPT Sat Feb 7 08:44:05 CET 2015) x86_64
+Compiler: GCC 4.8
+Compilation date: 2014-02-28T19:18:36
+ext2fs lib: 1.42.12, ntfs lib: libntfs-3g, reiserfs lib: 0.3.0.5, ewf lib: none
+/dev/sda: LBA, HPA, LBA48, DCO support
+/dev/sda: size       976773168 sectors
+/dev/sda: user_max   976773168 sectors
+/dev/sda: native_max 976773168 sectors
+/dev/sda: dco        976773168 sectors
+Warning: can't get size for Disk /dev/mapper/control - 0 B - 1 sectors, sector size=512
+Hard disk list
+Disk /dev/sda - 500 GB / 465 GiB - CHS 60801 255 63, sector size=512 - HITACHI HTS725050A9A364, S/N:110302PCK404GLH0J6EJ, FW:PC4ZC70F
+
+Partition table type (auto): Intel
+Disk /dev/sda - 500 GB / 465 GiB - HITACHI HTS725050A9A364
+Partition table type: Intel
+
+Analyse Disk /dev/sda - 500 GB / 465 GiB - CHS 60801 255 63
+Geometry from i386 MBR: head=118 sector=63
+check_part_i386 failed for partition type 83
+Current partition structure:
+ 1 * Linux                    0  32 33  3133  32 35   50331648
+No ext2, JFS, Reiser, cramfs or XFS marker
+ 2 P Linux                 3133  32 36  4177 117 36   16777216
+ 2 P Linux                 3133  32 36  4177 117 36   16777216
+ 3 P Linux                 4177 117 37 60801  80 63  909662256
+
+search_part()
+Disk /dev/sda - 500 GB / 465 GiB - CHS 60801 255 63
+
+recover_EXT2: s_block_group_nr=0/192, s_mnt_count=52/4294967295, s_blocks_per_group=32768, s_inodes_per_group=8192
+recover_EXT2: s_blocksize=4096
+recover_EXT2: s_blocks_count 6291456
+recover_EXT2: part_size 50331648
+     Linux                    0  32 33  3133  32 35   50331648
+     ext4 blocksize=4096 Large file Sparse superblock Recover, 25 GB / 24 GiB
+     Linux Swap            3133  32 36  4177 117 20   16777200
+     SWAP2 version 1, pagesize=4096, 8589 MB / 8191 MiB
+
+recover_EXT2: s_block_group_nr=0/3470, s_mnt_count=51/4294967295, s_blocks_per_group=32768, s_inodes_per_group=8192
+recover_EXT2: s_blocksize=4096
+recover_EXT2: s_blocks_count 113707782
+recover_EXT2: part_size 909662256
+     Linux                 4177 117 37 60801  80 63  909662256
+     ext4 blocksize=4096 Large file Sparse superblock Recover, 465 GB / 433 GiB
+
+Results
+   * Linux                    0  32 33  3133  32 35   50331648
+     ext4 blocksize=4096 Large file Sparse superblock Recover, 25 GB / 24 GiB
+   P Linux Swap            3133  32 36  4177 117 36   16777216
+     SWAP2 version 1, pagesize=4096, 8589 MB / 8192 MiB
+   P Linux                 4177 117 37 60801 112 47  909664256
+     ext4 blocksize=4096 Large file Sparse superblock Recover, 465 GB / 433 GiB
+
+interface_write()
+ 1 * Linux                    0  32 33  3133  32 35   50331648
+ 2 P Linux Swap            3133  32 36  4177 117 36   16777216
+ 3 P Linux                 4177 117 37 60801 112 47  909664256
+simulate write!
+
+write_mbr_i386: starting...
+write_all_log_i386: starting...
+No extended partition
+
+TestDisk exited normally.
