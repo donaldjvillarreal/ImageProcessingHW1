@@ -1,8 +1,8 @@
 // ================================================================
-// thr.c - Threshold program.
-// Copyright (C) 2012 by George Wolberg
+// histo_plot.cpp - Histogram Plot program.
 //
-// Written by: George Wolberg, 2012
+// Written by: Donald Villarreal
+//	           Joseph Wagner
 // =====================================================================
 
 #include "IP.h"
@@ -15,7 +15,7 @@ void histo_plot(imageP, imageP, int flag);
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // main:
 //
-// Main routine to threshold image.
+// Main routine for histo_plot.
 //
 int
 main(int argc, char** argv)
@@ -25,7 +25,7 @@ main(int argc, char** argv)
 
 	// error checking: proper usage
 	if(argc != 4) {
-		cerr << "histo_plot: histo_plot infile outfile flag\n";
+		cerr << "Usage: histo_plot infile outfile flag\n";
 		exit(1);
 	}
 
@@ -35,8 +35,12 @@ main(int argc, char** argv)
 
 	// read lower and upper thresholds
 	flag = atoi(argv[3]);
+    if(flag != 0 || flag != 1) {
+        cerr << "Flag must be '0' or '1'";
+        exit(1);
+    }
 
-	// threshold image and save result in file
+	// create histo_plot image and save result in file
 	histo_plot(I1, I2, flag);
 	IP_saveImage(I2, argv[2]);
 
@@ -54,20 +58,20 @@ main(int argc, char** argv)
 //
 // Plot histogram of image
 // if flag then scale histogram otherwise truncate. I2 is histogram output.
-//// 
+//
 
 void
 histo_plot(imageP I1, imageP I2, int flag)
 {
-	int	MAXGRAY = 256, total,i, j, width, height;
+	int	total, i, j, width, height;
 	uchar *in, *out, *cursor, H[256];
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
 
 	// init I2 dimensions and buffer
-	I2->width  = MAXGRAY;
-	I2->height = MAXGRAY;
+	I2->width  = MXGRAY;
+	I2->height = MXGRAY;
 	I2->image  = (uchar *) malloc(total);
 	if(I2->image == NULL) {
 		cerr << "histo_plot: Insufficient memory\n";
@@ -77,22 +81,22 @@ histo_plot(imageP I1, imageP I2, int flag)
 	height = I2->height;
 
 	// init lookup table
-	for(i=0;i<MAXGRAY;i++) H[i] = 0;	
+	for(i=0;i<MXGRAY;i++) H[i] = 0;	
 		
 	// visit all input pixels and apply lut to threshold
 	in  = I1->image;	// input  image buffer	
 	out = I2->image;	// output image buffer
 	
 	for(i=0;i<total;i++) H[in[i]]++;
-/* Flag handling goes here. Good sKeleton but not correct scaling method.
+/* Flag handling goes here. Good skeleton but not correct scaling method.
 	if(flag){
 		int max = H[0];
-		for(i=0;i<MAXGRAY;++i){
+		for(i=0;i<MXGRAY;++i){
 			if(H[i]>max)
 				max=H[i];
 		}
 		int scale = max - height;
-		for(i=0;i<MAXGRAY;++i){
+		for(i=0;i<MXGRAY;++i){
 			if(H[i]>scale)
 				H[i]=H[i]-scale;
 			else

@@ -16,7 +16,7 @@ void qntz(imageP, int, imageP);
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // main:
 //
-// Main routine to threshold image.
+// Main routine to quantize image.
 //
 int
 main(int argc, char** argv)
@@ -37,7 +37,7 @@ main(int argc, char** argv)
 	// read lower and upper thresholds
 	levels  = atoi(argv[2]);
 
-	// threshold image and save result in file
+	// quantize image and save result in file
 	qntz(I1, levels, I2);
 	IP_saveImage(I2, argv[3]);
 
@@ -49,24 +49,17 @@ main(int argc, char** argv)
 }
 
 
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// thr:
+// qntz:
 //
-// Threshold I1 and save the output in I2.
-// The following rule is used for thresholding:
-//	v_out = 0	0	<= v_in < thr_low
-//	v_out = 128	thr_low	<= v_in < thr_high
-//	v_out = 255	thr_high<= v_in < 256
-//
-// Ordinary bilevel thresholding occurs when thr_low = thr_high.
-//
+// Quantize I1 into n uniform intervals and save the output in I2.
+// 
 
 void
 qntz(imageP I1, int levels, imageP I2)
 {
-	int	 i, total, scale;
-	uchar	*in, *out, lut[256];
+	int i, total, scale;
+	uchar *in, *out, lut[256];
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
