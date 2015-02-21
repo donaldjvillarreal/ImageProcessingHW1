@@ -1,9 +1,9 @@
 
 // ================================================================
-// thr.c - Threshold program.
-// Copyright (C) 2012 by George Wolberg
+// qntz.cpp - Quantization program.
 //
-// Written by: George Wolberg, 2012
+// Written by: Donald Villarreal
+//             Joseph Wagner
 // =====================================================================
 
 #include "IP.h"
@@ -21,12 +21,12 @@ void qntz(imageP, int, imageP);
 int
 main(int argc, char** argv)
 {
-	int	n;
+	int	levels;
 	imageP	I1, I2;
 
 	// error checking: proper usage
 	if(argc != 4) {
-		cerr << "Usage: qntz infile n outfile\n";
+		cerr << "Usage: qntz infile levels outfile\n";
 		exit(1);
 	}
 
@@ -35,10 +35,10 @@ main(int argc, char** argv)
 	I2 = NEWIMAGE;
 
 	// read lower and upper thresholds
-	n = atoi(argv[2]);
+	levels  = atoi(argv[2]);
 
 	// threshold image and save result in file
-	qntz(I1, n, I2);
+	qntz(I1, levels, I2);
 	IP_saveImage(I2, argv[3]);
 
 	// free up image structures/memory
@@ -51,18 +51,22 @@ main(int argc, char** argv)
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// qntz:
+// thr:
 //
-// Quantize I1 into n uniform intervals and save the output in I2.
+// Threshold I1 and save the output in I2.
 // The following rule is used for thresholding:
-// 
+//	v_out = 0	0	<= v_in < thr_low
+//	v_out = 128	thr_low	<= v_in < thr_high
+//	v_out = 255	thr_high<= v_in < 256
+//
+// Ordinary bilevel thresholding occurs when thr_low = thr_high.
+//
 
 void
-qntz(imageP I1, int n, imageP I2)
+qntz(imageP I1, int levels, imageP I2)
 {
-	int MAXGRAY = 256;
-	int	 intervalSize, total, currInterval, i;
-	uchar *in, *out, lut[256];
+	int	 i, total, scale;
+	uchar	*in, *out, lut[256];
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
@@ -76,27 +80,14 @@ qntz(imageP I1, int n, imageP I2)
 		exit(1);
 	}
 
-	/*intervalSize = MAXGRAY/n;
-	currInterval = intervalSize;
-	i = 0;
-
 	// init lookup table
-	
-	while(currInterval <= 256){
-		for(;i<=currInterval; i++){ lut[i] = currInterval-intervalSize/2; cerr << "grey value: "<< i << " =" << (int)lut[i] << endl;} 
-			currInterval += intervalSize; 
-	}
-	*/
+	scale = MXGRAY / levels;
+	for(i=0; i<MXGRAY; i++)
+		lut[i] = scale * (int) (i/scale) + (int) (scale/2);
 
-	int scale = MAXGRAY/n;
-	for(i=0;i<MAXGRAY;i++){
-		lut[i] = scale * (int) i/scale;
-	}
-	
-
-	// visit all input pixels and apply lut to threshold
+	// iterate over all pixels
 	in  = I1->image;	// input  image buffer
 	out = I2->image;	// output image buffer
-	for(i=0; i<total; i++) out[i] = lut[ in[i] ];
+	for(i=0; i<total; i++)
+		out[i] = lut[ in[i] ];
 }
-
