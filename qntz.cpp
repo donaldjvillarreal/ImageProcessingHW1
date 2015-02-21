@@ -59,7 +59,7 @@ void
 qntz(imageP I1, int levels, imageP I2)
 {
 	int i, total, scale;
-	uchar *in, *out, lut[256];
+	uchar *in, *out, lut[MXGRAY];
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
