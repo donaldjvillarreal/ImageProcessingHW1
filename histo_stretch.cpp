@@ -62,8 +62,6 @@ main(int argc, char** argv)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // histo_stretch:
-//
-// Quantize I1 into n uniform intervals and save the output in I2.
 // 
 
 void
@@ -72,7 +70,6 @@ histo_stretch(imageP I1, int t1, int t2, imageP I2)
 	int i, total, scale, Hmax, Hmin;
 	uchar *in, *out, G[MXGRAY], H[MXGRAY];
 	in  = I1->image;	// input  image buffer
-	out = I2->image;	// output image buffer
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
@@ -90,29 +87,29 @@ histo_stretch(imageP I1, int t1, int t2, imageP I2)
 	for(i=0; i<MXGRAY; i++) H[i] = 0;	// clear histogram
 	for(i=0; i<total;  i++) H[in[i]]++;	// eval  histogram
 
+
 	// figure out the min and max of range for negative t1 and t2
 	Hmax = 0;		Hmin = MXGRAY;
 	if(t1 < 0 || t2 < 0) {
 		for(i=0; i<MXGRAY; i++) {
 			if(t1 < 0 && H[i] < Hmin)
-				Hmin = H[i];
+				Hmin = (int)H[i];
 			if(t2 < 0 && H[i] > Hmax)
-				Hmax = H[i];
+				Hmax = (int)H[i];
 		}
 	}
 	else {
 		Hmin = t1;		Hmax = t2;
 	}
 
-	// Test to see if min and max works
-	//cerr << Hmin << " - " << Hmax << "\n";
-
 	// final lookup table
 	for(i=0; i<MXGRAY; i++) {
-		G[i] = ((MXGRAY-1) * (H[i] - Hmin))/(Hmax - Hmin);
-		cerr << i << ": " << G[i] << "\n";
+		if(i<Hmin) G[i] =0;
+		else if(i>Hmax) G[i] = 255;
+		else G[i] = ((MXGRAY-1) * (i - Hmin))/(Hmax - Hmin);
 	}
 
+	out = I2->image;	// output image buffer
 	// iterate over all pixels
 	for(i=0; i<total; i++)
 		out[i] = G[ in[i] ];
