@@ -34,8 +34,9 @@ main(int argc, char** argv)
 	I2 = NEWIMAGE;
 
 	// read lower and upper thresholds
+
 	flag = atoi(argv[3]);
-    if(flag != 0 || flag != 1) {
+    if(flag < 0 || flag > 1) {
         cerr << "Flag must be '0' or '1'";
         exit(1);
     }
@@ -63,58 +64,49 @@ main(int argc, char** argv)
 void
 histo_plot(imageP I1, imageP I2, int flag)
 {
-	int	total, i, j, width, height;
-	uchar *in, *out, *cursor, H[256];
+	int	total, i, j, width, height, Hmax, H[256];
+	double scale, Havg;
+	uchar *in, *out, *cursor;
 
 	// total number of pixels in image
 	total = I1->width * I1->height;
 
 	// init I2 dimensions and buffer
-	I2->width  = MXGRAY;
-	I2->height = MXGRAY;
-	I2->image  = (uchar *) malloc(total);
+	I2->width  = MXGRAY;		I2->height = MXGRAY;		I2->image  = (uchar *) malloc(total);
 	if(I2->image == NULL) {
 		cerr << "histo_plot: Insufficient memory\n";
 		exit(1);
 	}
-	width = I2->width;
-	height = I2->height;
+	// height/width/average
+	width = I2->width;		height = I2->height;		Havg = total/256.0;
 
 	// init lookup table
 	for(i=0;i<MXGRAY;i++) H[i] = 0;	
 		
 	// visit all input pixels and apply lut to threshold
-	in  = I1->image;	// input  image buffer	
-	out = I2->image;	// output image buffer
-	
+	in  = I1->image;		out = I2->image;		Hmax = 0;
+
+	// Calculate Histogram
 	for(i=0;i<total;i++) H[in[i]]++;
-/* Flag handling goes here. Good skeleton but not correct scaling method.
-	if(flag){
-		int max = H[0];
-		for(i=0;i<MXGRAY;++i){
-			if(H[i]>max)
-				max=H[i];
-		}
-		int scale = max - height;
-		for(i=0;i<MXGRAY;++i){
-			if(H[i]>scale)
-				H[i]=H[i]-scale;
-			else
-				H[i]=0;
-		}
+	for(i=0;i<MXGRAY; i++) {
+		if(H[i] > Hmax) Hmax = H[i];
 	}
-*/	
-	uchar *origin = out + (height-1) * width;
-	cursor = origin;
-	for(j=0; j < width;){
-	cerr << (int)H[j] << endl;	
-		for(i=0; i < H[j];){			
-			*cursor = 200;
-			cursor -= width;
-			i++;
+
+	// Flag = 1, max point is placed at 255
+	if(flag) scale = 255.0/Hmax;
+
+	// Flag = 0, average of histogram is placed at 128
+	else scale = 128.0/Havg;
+
+	// Draw histogram plot
+	for(i=0; i < width; i++) {
+		H[i] = (int) (scale * H[i]);
+		if(H[i] >= height) {
+			for(j=0; j < height; j++) out[i+width*(width-j-1)] = MaxGray;
 		}
-		j++;
-		cursor = origin;
-		cursor += j;
+		else {
+			for(j=0; j<H[i]; j++) out[i+width*(width-j-1)] = MaxGray;
+			for(   ; j<height; j++) out[i+width*(width-j-1)] = 0;
+		}
 	}
 }
