@@ -1,0 +1,13 @@
+Homework 1
+	Donald Villarreal
+	Joseph Wagner
+
+Functions:
+	qntz: ./qntz infile numIntervals outfile
+		This function will take the input file, infile, and create numIntervals uniform gray level intervals.  For example, if numIntervals is 8, then there will be up to 8 gray levels used in the output image, outfile.
+
+	histo_plot: ./histo_plot infile outfile flag
+		This function will take the input file, infile, and output the histogram to the output file, outfile.  If the flag is set to 0, then the average is taken and set to 128.  If the flag is set to 1, then the maximum histogram value is set to 255 and the rest of the histogram values are scaled.  The issue with using the average is that clipping occurs, due to many values going above 255.
+		
+	histo_stretch: ./histo_stretch infile low_range high_range outfile
+		This function will take the input file, infile and stretch the histogram from the low_range to high_range.  The output is then sent to the output file, outfile.  If the low_range is higher than the high_range, the numbers are switched.  If the low_range is negative, then the minimum value in the histogram is stretched to 0.  If the high_range is negative, then the maximum value in histogram is stretched to 255.  This can occur for both ranges if both ranges are negative.
