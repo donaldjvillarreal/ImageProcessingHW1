@@ -26,7 +26,7 @@ main(int argc, char** argv)
 
 	// error checking: proper usage
 	if(argc != 3) {
-		cerr << "Usage: threshold_Otsu infile levels outfile\n";
+		cerr << "Usage: threshold_Otsu infile outfile\n";
 		exit(1);
 	}
 
@@ -58,45 +58,47 @@ void threshold_Otsu(imageP I1, imageP I2){
 	I2->width  = I1->width;
 	I2->height = I1->height;
 	I2->image  = (uchar *) malloc(total);
+	out = I2->image;
 	if(I2->image == NULL) {
 		cerr << "threshold_Otsu: Insufficient memory\n";
 		exit(1);
 	}
-	int total = l1->width * height;
-
+	total = I1->width * I1->height;
+	in = I1->image;
+	
 	// histogram
-	float p[256]
+	float p[256];
 	for(i=0; i<MXGRAY; i++) p[i] = 0;
-	for(i=0; i<total; i++) p[in[i]]++;
-
+	for(i=0; i<total; i++){ p[in[i]]++;}
 	// normalize histogram; each entry represents prob of intensity in image
 	for(i=0; i<MXGRAY; i++){
-	 	P[i] /= total;
-
+	 	p[i] /= total;
+	}
 	// compute global sum of i*p[i]
 	float sum = 0; 
+	int threshold = 0;
 	for(int i=0; i< MXGRAY;i++){
 		sum += (i*p[i]);
 	 	float sumB = 0;
 	 	float pB = 0;
 	 	float pF = 0;
-	 	varMax = 0;
+	 	int varMax = 0;
 	 	threshold = 0;
 	 	
 	 	for(int t =0; t<MXGRAY; ++t){
 	 		pB += p[t];
-	 		if(pB == 0) continue; //prob of background
+	 		if(pB == 0){ continue; } //prob of background
 	 		
 	 		pF = 1.0 - pB;
-	 		if(pF == 0) break; // prob foreground
+	 		if(pF == 0){ break; } // prob foreground
 
-	 		sumB += (float) (t * p[t];
+	 		sumB += (float) (t * p[t]);
 
 	 		float mB = sumB/pB; // BG mean
-	 		float mF = (sum - sumB)/ pF //foreground mean
+	 		float mF = (sum - sumB)/ pF; //foreground mean
 
 	 		//calculate between class variance
-	 		float varBetween = pB*pF * (mB-mF) * (mB-mF);
+	 		float varBetween = pB * pF * (mB-mF) * (mB-mF);
 
 	 		// check if new max found
 	 		if(varBetween > varMax){
@@ -105,9 +107,9 @@ void threshold_Otsu(imageP I1, imageP I2){
 	 		}
 	 	}
 	}
-	cerr << "thresh" << threshold
+	cerr << "threshold value = " << threshold << endl;
 	// init lookup table
-	uchar lut[256];
+	//uchar lut[256];
 	for(i=0; i<threshold; i++) lut[i] = 0;
 	for(   ; i<256; ++i) lut[i] = 255;
 	

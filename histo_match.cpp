@@ -66,7 +66,26 @@ histogramMatch(imageP I1, int n, imageP I2)
 	for(i=0; i<total; i++)  h1[in[i]]++;	// eval histogram
 
 	// normalize h2 to conform with dimensions of I1
-    
+
+	if(n==0){
+    	for(i=0; i<MXGRAY; i++){ h2[i] = Havg; }
+	}
+	else if(n<0){
+		n = abs(n);
+		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(1.0 - pow((double)i, (double)n));} 
+	}
+	
+	else{		
+		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(pow((double)i, (double)n)); }	
+	}
+
+	if(n != 0){
+		for(i=Havg=0; i<MXGRAY; i++){ Havg += h2[i]; }
+	}
+
+	scale = (double) total / Havg;
+	if(scale != 1) for(i=0; i<MXGRAY; i++) h2[i] *= scale;
+/*    
 	if(n==0){
     	for(i=0; i<MXGRAY; i++){ h2[i] = Havg; }
 	}
@@ -75,7 +94,7 @@ histogramMatch(imageP I1, int n, imageP I2)
 		for(i=0; i<MXGRAY; i++){ h2[MXGRAY-i] = ROUND(1.0 - pow((double)i/MaxGray, (double)n*MaxGray));} 
 	}
 	
-	else{
+	else{		
 		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(pow((double)i/MaxGray, (double)n*MaxGray)); }	
 	}
 
@@ -85,7 +104,7 @@ histogramMatch(imageP I1, int n, imageP I2)
 
 	scale = (double) total / Havg;
 	if(scale != 1) for(i=0; i<MXGRAY; i++) h2[i] *= scale;
-
+*/
 	R = 0;
 	Hsum = 0;
 	// evaluate remapping of all input gray levels;
