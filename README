@@ -11,3 +11,10 @@ Functions:
 		
 	histo_stretch: ./histo_stretch infile low_range high_range outfile
 		This function will take the input file, infile and stretch the histogram from the low_range to high_range.  The output is then sent to the output file, outfile.  If the low_range is higher than the high_range, the numbers are switched.  If the low_range is negative, then the minimum value in the histogram is stretched to 0.  If the high_range is negative, then the maximum value in histogram is stretched to 255.  This can occur for both ranges if both ranges are negative.
+	histo_match: ./histo_match in n out
+		Function histo_match performs a histogram matching operation to input image in, saving the result in file out. The his-
+		togram used is determined by n: 0 for a flat histogram and a positive (negative) number for an exponentially increasing
+		(decreasing) histogram.
+	threshold_Otsu: ./threshold_Otsu in out
+		Function threshold_Otsu performs Othsu’s adaptive thresholding method to compute a superior thresholded image. The
+		input image is stored in file in and the output is saved in out.
