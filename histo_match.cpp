@@ -65,54 +65,39 @@ histogramMatch(imageP I1, int n, imageP I2)
 	for(i=0; i<MXGRAY; i++) h1[i] = 0;	// clear histogram
 	for(i=0; i<total; i++)  h1[in[i]]++;	// eval histogram
 
+	Havg = ROUND((double)total/MXGRAY);
 	// normalize h2 to conform with dimensions of I1
 
 	if(n==0){
-    	for(i=0; i<MXGRAY; i++){ h2[i] = Havg; }
-	}
-	else if(n<0){
-		n = abs(n);
-		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(1.0 - pow((double)i, (double)n));} 
-	}
-	
-	else{		
-		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(pow((double)i, (double)n)); }	
-	}
-
-	if(n != 0){
-		for(i=Havg=0; i<MXGRAY; i++){ Havg += h2[i]; }
+		for (i=0; i<MXGRAY; i++) h2[i]=Havg;
+	}else if(n>0){
+		for(i=0;i<MXGRAY; i++){
+			h2[i] = ROUND(pow((double)i/MaxGray,(double)n)*MaxGray);
+		}
+	}else if(n<0){
+		for (i=0; i<MXGRAY; i++){
+			h2[i] = ROUND((1.0-pow((double)i/MaxGray,(double)(ABS(n))))*MaxGray);
+		}
 	}
 
-	scale = (double) total / Havg;
-	if(scale != 1) for(i=0; i<MXGRAY; i++) h2[i] *= scale;
-/*    
-	if(n==0){
-    	for(i=0; i<MXGRAY; i++){ h2[i] = Havg; }
-	}
-	else if(n<0){
-		n = abs(n);
-		for(i=0; i<MXGRAY; i++){ h2[MXGRAY-i] = ROUND(1.0 - pow((double)i/MaxGray, (double)n*MaxGray));} 
-	}
-	
-	else{		
-		for(i=0; i<MXGRAY; i++){ h2[i] = ROUND(pow((double)i/MaxGray, (double)n*MaxGray)); }	
+	if(n!=0) {
+		for(i=Havg=0; i<MXGRAY; i++) Havg += h2[i];
+		scale = (float) total / Havg;
+		if(scale != 1.0) for(i=0; i<MXGRAY; i++) h2[i]=ROUND(h2[i]*scale);
 	}
 
-	if(n != 0){
-		for(i=Havg=0; i<MXGRAY; i++){ Havg += h2[i]; }
-	}
-
-	scale = (double) total / Havg;
-	if(scale != 1) for(i=0; i<MXGRAY; i++) h2[i] *= scale;
-*/
 	R = 0;
 	Hsum = 0;
+	int Lmax[255];
+	for (i=0; i<MXGRAY; i++) Lmax[i]=h2[i];
 	// evaluate remapping of all input gray levels;
 	// Each input gray value maps to an interval of valid
 	// output values. The endpoints of the intervals are
 	// left[] and right[] */
+
 	for(i=0; i<MXGRAY; i++) {
 		left[i] = R;		// left end of interval
+		Lmax[i] = h2[R]-Hsum;
 		Hsum += h1[i];		// cum. interval value
 
 		// make interval wider, if necessary
@@ -125,15 +110,23 @@ histogramMatch(imageP I1, int n, imageP I2)
 		right[i] = R;
 	}
 
+	Lmax[255] = total; 
+
 	// clear h1 and reuse it below
 	for(i=0; i<MXGRAY; i++) h1[i] = 0;
 
 	// visit all input pixels
 	for(i=0; i<total; i++) {
+		int v = in[i];
 		p = left[in[i]];
-		if(h1[p] < h2[p])	// mapping satisfies h2
+		if(h1[p] < h2[p] && Lmax[v] > 0){	// mapping satisfies h2
 			out[i] = p;
-		else	out[i] = p = left[in[i]] = MIN(p+1, right[in[i]]);
-		h1[p]++;
+			Lmax[v]--;
+		}
+		else{	
+			out[i] = p = left[in[i]] = MIN(p+1, right[in[i]]);
+			Lmax[v] = total;
+		}
+	h1[p]++;
 	}
 }
