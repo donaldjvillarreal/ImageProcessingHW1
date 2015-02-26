@@ -34,17 +34,16 @@ main(int argc, char** argv)
 	I1 = IP_readImage(argv[1]);
 	I2 = NEWIMAGE;
 
-	// t1 is lower of 2 inputs, while t2 is higher of 2 inputs
-	if(atoi(argv[2]) > atoi(argv[3])) {
-		t2 = atoi(argv[2]);
-		t1 = atoi(argv[3]);
+	t1 = atoi(argv[2]);
+	t2 = atoi(argv[3]);
+
+	if(t1 > 255 || t2 > 255 || t1 < -1 || t2 < -1) {
+		cerr << "Values must be between -1 and 255\n";
+		exit(1);
 	}
-	else {
-		t1 = atoi(argv[2]);
-		t2 = atoi(argv[3]);
-	}
-	if(t2 > 255) {
-		cerr << "Highest input cannot exceed 255\n";
+
+	if(t1 > 0 && t2 > 0 && t1 >= t2) {
+		cerr << "The first value must be less than the second value\n";
 		exit(1);
 	}
 
@@ -67,8 +66,8 @@ main(int argc, char** argv)
 void
 histo_stretch(imageP I1, int t1, int t2, imageP I2)
 {
-	int i, total, scale, Hmax, Hmin;
-	uchar *in, *out, G[MXGRAY], H[MXGRAY];
+	int i, total, scale, Hmax, Hmin, G[MXGRAY], H[MXGRAY];
+	uchar *in, *out;
 	in  = I1->image;	// input  image buffer
 
 	// total number of pixels in image
@@ -89,24 +88,35 @@ histo_stretch(imageP I1, int t1, int t2, imageP I2)
 
 
 	// figure out the min and max of range for negative t1 and t2
-	Hmax = 0;		Hmin = MXGRAY;
-	if(t1 < 0 || t2 < 0) {
-		for(i=0; i<MXGRAY; i++) {
-			if(t1 < 0 && H[i] < Hmin)
-				Hmin = (int)H[i];
-			if(t2 < 0 && H[i] > Hmax)
-				Hmax = (int)H[i];
+	Hmin = 0;
+	Hmax = MXGRAY;
+	if(t1 < 0) {
+		for(i=1; i<MXGRAY; i++) {
+			if(H[i] > 0) {
+				Hmin = i;
+				break;
+			}
 		}
 	}
-	else {
-		Hmin = t1;		Hmax = t2;
+
+	else Hmin = t1;
+
+	if(t2 < 0) {
+		for(i=MaxGray; i>0; i--) {
+			if(H[i] > 0) {
+				Hmax = i;
+				break;
+			}
+		}
 	}
+
+	else Hmax = t2;
 
 	// final lookup table
 	for(i=0; i<MXGRAY; i++) {
 		if(i<Hmin) G[i] =0;
 		else if(i>Hmax) G[i] = 255;
-		else G[i] = ((MXGRAY-1) * (i - Hmin))/(Hmax - Hmin);
+		else G[i] = (MaxGray * (i - Hmin))/(Hmax - Hmin);
 	}
 
 	out = I2->image;	// output image buffer
